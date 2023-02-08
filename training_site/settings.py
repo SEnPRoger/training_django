@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-mpcp%0ne2rc#6&$punkqec#1#7d74lpv2pcxdum#vf=fxm3o^m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': [
