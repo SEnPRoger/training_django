@@ -79,8 +79,9 @@ class UserView(APIView):
     
 class APItest(APIView):
     def get(request):
-        return Response({"ip": get_client_ip(request),
-                        "country": get_location_by_ip(request)})
+        user = Account.objects.get(id=1)
+        serializer = AccountSerializer(user)
+        return Response({"user": serializer.data,"ip": get_client_ip(request),"country": get_location_by_ip(request)})
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
