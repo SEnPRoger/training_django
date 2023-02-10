@@ -8,7 +8,8 @@ urlpatterns = [
     path('register', RegisterView.as_view(), name='register'),
     path('login', LoginView.as_view(), name='login'),
     path('settings', UserView.as_view(), name='settings'),
-    path('logout', LogoutView.as_view(), name='logout')
+    path('logout', LogoutView.as_view(), name='logout'),
+    path('location', APItest.as_view(), name='location'),
     # path('logout', logout_view, name='logout'),
     # # path('accounts/', include("django.contrib.auth.urls")),
     # path('username-available', username_available_view, name='username_available'),

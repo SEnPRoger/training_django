@@ -9,8 +9,11 @@ from account.models import Account
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 import jwt, datetime
+import requests
 
 from account.api.serializers import AccountSerializer
+
+GEOLOCATION_API_KEY = "668139cd225e4b99a80573fe0aba97eb"
 
 class RegisterView(APIView):
     def post(self, request):
@@ -74,6 +77,25 @@ class UserView(APIView):
 
         return Response(serializer.data)
     
+class APItest(APIView):
+    def get(request):
+        return Response({"ip": get_client_ip(request),
+                        "country": get_location_by_ip(request)})
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def get_location_by_ip(request):
+    ip = get_client_ip(request)
+    response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(GEOLOCATION_API_KEY, ip))
+    ip_location = response.json()
+    return ip_location["country_name"]
+
 class LogoutView(APIView):
     def post(self, request):
         response = Response()
