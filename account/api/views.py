@@ -94,7 +94,7 @@ def get_location_by_ip(request):
     ip = get_client_ip(request)
     response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(GEOLOCATION_API_KEY, ip))
     ip_location = response.json()
-    return ip_location["country_name"]
+    return ip_location
 
 class LogoutView(APIView):
     def post(self, request):
