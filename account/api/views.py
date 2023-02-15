@@ -15,6 +15,20 @@ from account.api.serializers import AccountSerializer
 
 GEOLOCATION_API_KEY = "668139cd225e4b99a80573fe0aba97eb"
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def get_location_by_ip(request):
+    ip = get_client_ip(request)
+    response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(GEOLOCATION_API_KEY, ip))
+    ip_location = response.json()
+    return ip_location
+
 class RegisterView(APIView):
     def post(self, request):
         serializer = AccountSerializer(data=request.data)
@@ -75,27 +89,22 @@ class UserView(APIView):
         user = Account.objects.get(id=payload['id'])
         serializer = AccountSerializer(user)
 
-        return Response(serializer.data)
+        ip = get_client_ip(request)
+        country = get_location_by_ip(request)
+
+        return Response({"user": serializer.data,
+                         "ip": ip,
+                         "country":country})
     
 class APItest(APIView):
     def get(request):
         user = Account.objects.get(id=1)
         serializer = AccountSerializer(user)
-        return Response({"user": serializer.data,"ip": get_client_ip(request),"country": get_location_by_ip(request)})
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-def get_location_by_ip(request):
-    ip = get_client_ip(request)
-    response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(GEOLOCATION_API_KEY, ip))
-    ip_location = response.json()
-    return ip_location
+        ip = get_client_ip(request)
+        country = get_location_by_ip(request)
+        return Response({"user": serializer.data,
+                         "ip": ip,
+                         "country":country})
 
 class LogoutView(APIView):
     def post(self, request):
