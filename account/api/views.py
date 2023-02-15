@@ -76,25 +76,23 @@ class LoginView(APIView):
     
 class UserView(APIView):
     def get(self, request):
-        token = request.COOKIES.get('jwt')
+        # token = request.COOKIES.get('jwt')
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated connection')
+        # if not token:
+        #     raise AuthenticationFailed('Unauthenticated connection')
         
-        try:
-            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated connection')
+        # try:
+        #     payload = jwt.decode(token, 'secret', algorithm=['HS256'])
+        # except jwt.ExpiredSignatureError:
+        #     raise AuthenticationFailed('Unauthenticated connection')
         
-        user = Account.objects.get(id=payload['id'])
-        serializer = AccountSerializer(user)
+        # user = Account.objects.get(id=payload['id'])
+        # serializer = AccountSerializer(user)
 
         ip = get_client_ip(request)
         country = get_location_by_ip(request)
 
-        return Response({"user": serializer.data,
-                         "ip": ip,
-                         "country":country})
+        return Response({"ip": ip, "country":country})
     
 class APItest(APIView):
     def get(request):
