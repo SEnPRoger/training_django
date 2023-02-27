@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from account.api.serializers import *
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FileUploadParser
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,7 +13,6 @@ import requests
 from pathlib import Path
 from django.conf import settings
 import datetime, time
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from JWTAuth.views import JWTToken
 from account.models import Account
 from django.middleware import csrf
