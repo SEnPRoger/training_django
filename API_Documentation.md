@@ -60,12 +60,12 @@
 
 ❌ або якщо email не валiдний:
 
->    ```json
->    {
->     	"email":  [
-	>     		"Enter a valid email address."
->     	]
->    }
+> ```json
+> {
+>     "email":  [
+>         "Enter a valid email address."
+>     ]
+> }
 >  ```
 
 ### 📢 ВАЖЛИВО: Refresh-token буде записаний до cookies зi значенням `refresh_cookie`, а Access-token у виглядi вiдповiдi для подальшого використання запитiв, що потребують авторизованого пiдключення.
@@ -80,28 +80,28 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->    {
->     	"username_or_email": "senproger@gmail.com" // або SEnPRoger
->     	"password": "1234"
->    }
->    ```
+> ```json
+>  {
+>     "username_or_email": "senproger@gmail.com" // або SEnPRoger
+>     "password": "1234"
+>  }
+>  ```
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
->    ```json
->    {
->     	"status": "successfully logged",
->     	"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
->    }
->    ```
+> ```json
+> {
+>     "status": "successfully logged",
+>     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+> }
+>  ```
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
->    ```json
->    {
->     	"status": "account not found!"
->    }
->    ```
+>  ```json
+>  {
+>      "status": "account not found!"
+>  }
+>  ```
 
 ### 📢 ВАЖЛИВО: Refresh-token буде записаний до cookies зi значенням `refresh_cookie`, а Access-token у виглядi вiдповiдi для подальшого використання запитiв, що потребують авторизованого пiдключення.
 
@@ -124,19 +124,19 @@
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
->    ```json
->     {
->     	"status":  "success",
->     	"account":  {
->     		"username":  "SEnPRoger",
->     		"email":  "senproger@gmail.com",
-	>     		"photo":  "/media/accounts/2/SEnPRoger.jpg", //or null
-	> 				"is_moderator":  false,
->     		"created_at":  "2023-02-18T07:42:32.695287+02:00",
->     		"changed_username":  "2023-02-18T07:42:32+02:00"
->     	}
+> ```json
+>  {
+>     "status":  "success",
+>     "account":  {
+>     	"username":  "SEnPRoger",
+>     	"email":  "senproger@gmail.com",
+>     	"photo":  "/media/accounts/2/SEnPRoger.jpg", //or null
+> 	"is_moderator":  false,
+>     	"created_at":  "26 February 2023 17:41", //2023-02-18T07:42:32.695287+02:00 (raw version as option)
+>     	"changed_username":  "26 February 2023 17:41"
 >     }
->    ```
+>   }
+>  ```
 
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
  
@@ -161,19 +161,19 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->    {
->     	"username": "SEnPRoger2"
->    }
->    ``` 
+> ```json
+> {
+>     "username": "SEnPRoger2"
+> }
+> ``` 
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
->    ```json
->    {
->     	"status": "successfully changed nickname"
->    }
->    ``` 
+> ```json
+> {
+>     "status": "successfully changed nickname"
+> }
+> ``` 
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
 
@@ -212,20 +212,20 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->   {
-	>     	"password": "1234",
-	>     	"password2": "1234"
->    }
->    ``` 
+> ```json
+>  {
+>     "password": "1234",
+>     "password2": "1234"
+>  }
+>  ``` 
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
->    ```json
->    {
->     	"status": "successfully changed passsword"
->    }
->    ``` 
+> ```json
+> {
+>     "status": "successfully changed passsword"
+> }
+> ``` 
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
 > ```json
@@ -413,10 +413,10 @@
 # 🔖 Невалiдний Access-token
 
   **Access-token** необхiдний для пiдтвердження особи, що увiйшла до системи.
-> Час життя Access-token: **5 хвилин**
+> Час життя Access-token: **5 хвилин (у тестовому режимi 1 хвилину)**
 
 У випадку невалiдностi Access-token потрiбно за допомогою основного (**Refresh-token**) оновити його. Iнакше система не надасть доступ до iнформацiї за запитом до url з правом доступу **IsAuthenticated**.
-> Час життя Refresh-token: **21 день**
+> Час життя Refresh-token: **21 день (у тестовому режимi 3 хвилини)**
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token** : (JSON)*
 
