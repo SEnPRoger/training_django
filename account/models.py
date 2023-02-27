@@ -1,130 +1,110 @@
-# from django.db import models
-# from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
-# class MyAccountManager(BaseUserManager):
-#     def create_user(self, email, username, password=None):
-#         if not email:
-#             raise ValueError("Users must have an email")
-#         if not username:
-#             raise ValueError("Users must have an username")
-        
-#         user = self.model(
-#             email = self.normalize_email(email),
-#             username = username
-#         )
-#         user.set_password(password)
-#         user.save(using=self._db)
-
-#         return user
-    
-#     def create_superuser(self, email, username, password):
-#         user = self.create_user(
-#             username = username,
-#             email = self.normalize_email(email),
-#             password = password,
-#         )
-
-#         user.is_admin = True
-#         user.is_staff = True
-#         user.is_superuser = True
-#         user.save(using=self._db)
-
-#         return user
-
-# def username_photo_path(instance, filename):
-#         # file will be uploaded to media/accounts/username/username.extension,
-#         #                     like media/accounts/SEnPRoger/SEnPRoger.jpg
-#         extension = filename.split('.')[1]
-#         return 'accounts/{0}/{0}.{1}'.format(instance.username, extension)
-
-# class Account(AbstractBaseUser):
-#     username        = models.CharField(max_length=32, blank=False, unique=True)
-#     photo           = models.ImageField(upload_to=username_photo_path, default='default.jpg', blank=False)
-#     email           = models.EmailField(max_length=32, blank=False, unique=True)
-#     password        = models.EmailField(max_length=32, blank=False, unique=True)
-
-#     USERNAME_FIELD = 'username'
-#     REQUIRED_FIELDS = ['email']
-
-#     objects = MyAccountManager()
-
 from django.db import models
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
+from django.utils import timezone
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+import shutil
+from pathlib import Path
 
-#Create your models here.
-class MyAccountManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+class AccountManager(BaseUserManager):
+    def create_user(self, username, email, password=None, password2=None):
+        """
+        Creates and saves a User with the given email, date of
+        birth and password.
+        """
         if not email:
-            raise ValueError("Users must have an email")
-        if not username:
-            raise ValueError("Users must have an username")
-        
+            raise ValueError('Users must have an email address')
+
         user = self.model(
-            email = self.normalize_email(email),
-            username = username
+            email=self.normalize_email(email),
+            username=username,
         )
+
         user.set_password(password)
         user.save(using=self._db)
-
         return user
-    
-    def create_superuser(self, email, username, password):
+
+    def create_superuser(self, username, email, password=None):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
         user = self.create_user(
-            username = username,
-            email = self.normalize_email(email),
-            password = password,
+            email=email,
+            password=password,
+            username=username,
         )
-
         user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
         user.save(using=self._db)
-
         return user
 
 def username_photo_path(instance, filename):
-        # file will be uploaded to media/accounts/username/username.extension,
-        #                     like media/accounts/SEnPRoger/SEnPRoger.jpg
+        # file will be uploaded to media/accounts/account.id/username.extension,
+        #                     like media/accounts/1/SEnPRoger.jpg
         extension = filename.split('.')[1]
-        return 'accounts/{0}/{0}.{1}'.format(instance.username, extension)
+        return 'accounts/{0}/{1}.{2}'.format(instance.id, instance.username, extension)
 
+# Create your models here.
 class Account(AbstractBaseUser):
-    username        = models.CharField(max_length=32, blank=False, unique=True)
-    photo           = models.ImageField(upload_to=username_photo_path, default='default.jpg', blank=False)
-    email           = models.EmailField(max_length=32, blank=False, unique=True)
-    password        = models.CharField(max_length=32, blank=False)
-    date_joined     = models.DateTimeField(auto_now_add=True)
-    last_login      = models.DateTimeField(auto_now=True)
-    is_admin        = models.BooleanField(default=False)
-    is_active       = models.BooleanField(default=True)
-    is_staff        = models.BooleanField(default=False)
-    is_superuser    = models.BooleanField(default=False)
+    username            = models.CharField(verbose_name='Username', max_length=32, blank=False, unique=True, help_text='Username should be unique')
+    email               = models.EmailField(verbose_name='Email', max_length=32, blank=False, unique=True, help_text='Email should be unique')
+    photo               = models.ImageField(verbose_name='Change account photo', upload_to=username_photo_path, blank=True)
+    city                = models.CharField(max_length=64, blank=False)
+    country             = models.CharField(max_length=64, blank=False)
+    changed_username    = models.DateTimeField(verbose_name='Changed username date', default=timezone.now, help_text='Username can be changed every 24 hours')
+
+    moderator_id        = models.IntegerField(blank=True, null=True)
+    is_moderator        = models.BooleanField(default=False)
+
+    is_active           = models.BooleanField(default=True)
+    is_admin            = models.BooleanField(default=False)
+
+    created_at          = models.DateTimeField(auto_now_add=True)
+    updated_at          = models.DateTimeField(auto_now=True)
+
+    objects = AccountManager()
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
-
-    objects = MyAccountManager()
+    REQUIRED_FIELDS = ['email']
 
     def __str__(self):
         return self.username
-    
+
     def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
         return self.is_admin
-    
+
     def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
         return True
-    
-    def check_password(self, password):
-        if password == self.password:
-            return True
-        else:
-            return False
-    
-# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-# def create_auth_token(sender, instance=None, created=False, **kwargs):
-#     if created:
-#         Token.objects.create(user=instance)
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
+
+    def image_tag(self):
+        from django.utils.html import mark_safe
+        return mark_safe('<img src="%s" width="150" height="150" />' % (self.photo.url))
+    image_tag.short_description = 'Account photo'
+    image_tag.allow_tags = True
+
+    def get_image(self):
+        if self.photo:
+            return self.photo.url
+
+    def delete(self, using=None, keep_parents=False):
+        try:
+            if self.photo != None:
+                photo_path = Path(self.photo.path)
+                photo_folder = photo_path.parent
+                shutil.rmtree(photo_folder)
+        except:
+            pass
+
+        from moderator.models import Moderator
+        if self.is_moderator:
+            moderator_obj = Moderator.objects.get(id=self.moderator_id)
+            moderator_obj.delete()
+        super().delete()

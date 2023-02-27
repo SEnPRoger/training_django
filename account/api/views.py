@@ -1,188 +1,228 @@
-from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import logout
-from account.models import Account
-
+from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.exceptions import AuthenticationFailed
-import jwt, datetime
+from account.api.serializers import *
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FileUploadParser
+from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime, timedelta
+from django.utils import timezone
+from django.utils.timezone import localdate
 import requests
+from pathlib import Path
+from django.conf import settings
+import datetime, time
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from JWTAuth.views import JWTToken
+from account.models import Account
+from django.middleware import csrf
 
-from account.api.serializers import AccountSerializer
+class AccountRegister(APIView):
+    def post(self, request, format=None):
+        serializer = AccountRegisterSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            try:
+                serializer.validated_data['country'], serializer.validated_data['city'] = self.get_location_by_ip(request)
+            except KeyError:
+                pass
+            account = serializer.save()
 
-GEOLOCATION_API_KEY = "668139cd225e4b99a80573fe0aba97eb"
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-def get_location_by_ip(request):
-    ip = get_client_ip(request)
-    response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(GEOLOCATION_API_KEY, ip))
-    ip_location = response.json()
-    return ip_location['country_name'], ip_location['city']
-
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = AccountSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-    
-class LoginView(APIView):
-    def post(self, request):
-
-        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
-
-        auth = ''
-
-        if 'username' in request.data:
-            auth = request.data['username']
-            user = Account.objects.get(username=auth)
+            refresh_token, access_token = JWTToken.generate_tokens(user_id=account.id)
+            response = Response({'status':'successfully registered',
+                            'access_token':access_token},
+                            status=status.HTTP_200_OK)
+            JWTToken.set_refresh_to_cookie(response, refresh_token, cookie_name='refresh_cookie')
+            response['X-CSRFToken'] = csrf.get_token(request)
+            return response
         else:
-            auth = request.data['email']
-            user = Account.objects.get(email=auth)
+            return Response({'status':'register failed',
+                         'error':serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    GEOLOCATION_API_KEY = "668139cd225e4b99a80573fe0aba97eb"
 
-        password = request.data['password']
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
-        if user is None:
-            raise AuthenticationFailed('User not found')
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password')
+    def get_location_by_ip(self, request):
+        ip = self.get_client_ip(request)
+        response = requests.get("https://api.ipgeolocation.io/ipgeo?apiKey={0}&ip={1}".format(self.GEOLOCATION_API_KEY, ip))
+        ip_location = response.json()
+        return ip_location['country_name'], ip_location['city']
+
+class AccountLogin(APIView):
+    def post(self, request, format=None):
+        serializer = AccountLoginSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+
+            username_or_email = serializer.data.get('username_or_email')
+            password = serializer.data.get('password')
+
+            account = authenticate(username=username_or_email, password=password)
+            if account is not None:
+                refresh_token, access_token = JWTToken.generate_tokens(user_id=account.id)
+                response = Response({'status':'successfully logged',
+                                'access_token':access_token},
+                                status=status.HTTP_200_OK)
+                JWTToken.set_refresh_to_cookie(response, refresh_token, cookie_name='refresh_cookie')
+                response['X-CSRFToken'] = csrf.get_token(request)
+                return response
+            else:
+                return Response({'status':'account not found!'},
+                                    status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'status':'login failed',
+                         'error':serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+class AccountProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        serializer = AccountDetailSerializer(request.user)
+        response = Response({'account':serializer.data},
+                            status=status.HTTP_200_OK)
         
-        payload = {
-            'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow() 
-        }
-
-        token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
-
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        response.data = {
-            'message': 'success',
-            'ip': ip,
-            'jwt': token
-        }
+        response['X-CSRFToken'] = csrf.get_token(request)
         return response
-    
-class UserView(APIView):
-    def get(self, request):
-        # token = request.COOKIES.get('jwt')
 
-        # if not token:
-        #     raise AuthenticationFailed('Unauthenticated connection')
-        
-        # try:
-        #     payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        # except jwt.ExpiredSignatureError:
-        #     raise AuthenticationFailed('Unauthenticated connection')
-        
-        # user = Account.objects.get(id=payload['id'])
-        # serializer = AccountSerializer(user)
-
-        ip = get_client_ip(request)
-        country, city = get_location_by_ip(request)
-
-        return Response({"ip": ip, "country":country, "city":city})
-    
-class APItest(APIView):
-    def get(request):
-        user = Account.objects.get(id=1)
-        serializer = AccountSerializer(user)
-        ip = get_client_ip(request)
-        country = get_location_by_ip(request)
-        return Response({"user": serializer.data,
-                         "ip": ip,
-                         "country":country})
-
-class LogoutView(APIView):
+class AccountPhotoUpload(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
-        response = Response()
-        response.delete_cookie('jwt')
-        response.data = {
-            'message' : 'success'
-        }
+        # set 'data' so that you can use 'is_vaid()' and raise exception
+        # if the file fails validation
+        serializer = AccountPhotoUploadSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            # once validated, grab the file from the request itself
+            file = request.FILES['file']
+            extension = str(file).split('.')[1]
+            
+            if extension == 'gif' and request.user.is_moderator == False:
+                return Response({'status':'you cannot upload gif as account photo'},
+                                status=status.HTTP_403_FORBIDDEN)
+            else:
+                account = Account.objects.get(id=request.user.id)
+                if account.photo != None:
+                    account.photo.delete()
+                account.photo = file
+                account.save()
+
+                return Response({'status':'successfully uploaded photo'},
+                                    status=status.HTTP_200_OK)
+
+class AccountChangeUsername(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        serializer = AccountChangeUsernameSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            account = Account.objects.get(id=request.user.id)
+            username = serializer.data.get('username')
+            try:
+                check_available_username = Account.objects.get(username=username)
+            except ObjectDoesNotExist:
+                if (timezone.now() - account.changed_username) < timedelta(days=1):
+                    return Response({'status':'username change available once at day'},
+                        status=status.HTTP_400_BAD_REQUEST)
+                account.username = username
+                account.changed_username = datetime.now()
+                account.save()
+                return Response({'status':'successfully changed nickname',
+                             'username':account.username},
+                    status=status.HTTP_200_OK)
+
+class AccountChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        serializer = AccountChangePasswordSerializer(data=request.data, context={'user':request.user})
+        if serializer.is_valid(raise_exception=True):
+            password = serializer.data.get('password')
+            password2 = serializer.data.get('password2')
+            
+            if password == password2:
+                return Response({'status':'successfully changed password'},
+                        status=status.HTTP_200_OK)
+            return Response({'status':'fail',
+                         'error':serializer.errors},
+                        status=status.HTTP_200_OK)
+
+class AccountLogout(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        response = Response({'msg':'successfully logout from account!'},
+                            status=status.HTTP_200_OK)
+        
+        response.delete_cookie('refresh_cookie')
+        response.delete_cookie('X-CSRFToken')
         return response
-
-# @api_view(['POST',])
-# def registration_view(request):
-#     if request.method == 'POST':
-#         serializer = RegistrationSerializer(data=request.data)
-#         data = {}
-#         if serializer.is_valid():
-#             account = serializer.save()
-#             data['status'] = "User has been registered"
-#             token = Token.objects.get(user=account).key
-#             data['token'] = token
-#         else:
-#             data['status'] = serializer.errors
-#         return Response(data)
     
-# @api_view(['POST',])
-# def username_available_view(request):
-#     if request.method == 'POST':
-#         username = request.data["username"]
-#         data = {}
-#         if Account.objects.filter(username = username).exists():
-#             data['available'] = "This username has already used"
-#         else:
-#             data['available'] = "Username can be used"
-            
-#         return Response(data)
-    
-# @api_view(['POST',])
-# def email_available_view(request):
-#     if request.method == 'POST':
-#         email = request.data["email"]
-#         data = {}
-#         if Account.objects.filter(email = email).exists():
-#             data['available'] = "This email has already used"
-#         else:
-#             data['available'] = "Email can be used"
-            
-#         return Response(data)
-    
-# @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-# def logout_view(request):
-#     request.user.auth_token.delete()
-#     logout(request)
-
-#     return Response('User Logged out successfully')
-
-# class LoginView(APIView):
-#     def post(self, request):
-#         email = request.data['email']
-#         password = request.data['password']
-
-#         user = Account.objects.get(email=email)
-
-#         # if email != None:
-#         #     user = Account.objects.get(email=email)
-#         # else:
-#         #     username = request.data['username']
-#         #     user = Account.objects.get(username=username)
-
-#         if user is None:
-#             raise AuthenticationFailed('User not found')
-#         if not user.check_password(password):
-#             raise AuthenticationFailed('Incorrect password')
+class AccountDelete(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        account = Account.objects.get(id=request.user.id)
+        account.delete()
+        return Response({'status':'success'},
+                        status=status.HTTP_200_OK)
         
-#         payload = {
-#             'id': Account.id,
-#             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-#             'iat': datetime.datetime.utcnow() 
-#         }
+class AccountCheckUsernameAvailable(APIView):
+    def get(self, request, format=None):
+        serializer = AccountChangeUsernameSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            entered_username = serializer.data.get('username')
+            try:
+                username_check = Account.objects.get(username=entered_username)
+                return Response({'status':'username is not available'},
+                                status=status.HTTP_200_OK)
+            except ObjectDoesNotExist:
+                if len(entered_username) > 3:
+                        return Response({'status':'username available'},
+                                        status=status.HTTP_200_OK)
+                else:
+                        return Response({'status':'username should be have more then 3 characters'},
+                                        status=status.HTTP_200_OK)
+        return Response({'status':'fail',
+                         'error':serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+class AccountCheckEmailAvailable(APIView):
+    def get(self, request, format=None):
+        serializer = AccountCheckEmailAvailableSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            entered_email = serializer.data.get('email')
+            try:
+                email_check = Account.objects.get(email=entered_email)
+                return Response({'status':'email is not available'},
+                                                status=status.HTTP_200_OK)
+            except ObjectDoesNotExist:
+                return Response({'status':'email available'},
+                                        status=status.HTTP_200_OK)
+        return Response({'status':'fail',
+                         'error':serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-#         token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
-        
-#         return Response({'message': 'success', 'jwt': token})
+# class AccountSendEmailResetPassword(APIView):
+#     def post(self, request, format=None):
+#         serializer = AccountSendResetPasswordSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             return Response({'status':'success',
+#                          'msg':'Password reset link sent. Check your Email'},
+#                         status=status.HTTP_200_OK)
+#         return Response({'status':'fail',
+#                          'error':serializer.errors},
+#                         status=status.HTTP_400_BAD_REQUEST)
+    
+# class AccountResetPassword(APIView):
+#     def post(self, request, uid, token, format=None):
+#         serializer = AccountResetPasswordSerializer(data=request.data,
+#                                                      context={'uid':uid, 'token':token})
+#         if serializer.is_valid(raise_exception=True):
+#             return Response({'status':'success'},
+#                         status=status.HTTP_200_OK)
+#         return Response({'status':'fail',
+#                          'error':serializer.errors},
+#                         status=status.HTTP_400_BAD_REQUEST)
