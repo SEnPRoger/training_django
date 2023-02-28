@@ -220,11 +220,11 @@ class AccountGetAnother(APIView):
             return Response({'status':'account not found!'},
                                     status=status.HTTP_404_NOT_FOUND)
     
-    def get_normal_created_at_datetime(self, account):
-        return timezone.localtime(account.created_at).strftime('%d %B %Y %H:%M')
+    def get_normal_created_at_datetime(self, obj):
+        return timezone.localtime(obj.created_at).strftime('%d %B %Y %H:%M')
     
-    def get_image_color(self, account):
-        if account.get_image() is not None:
+    def get_image_color(self, obj):
+        if obj.get_image() is not None:
             import sys
             if sys.version_info < (3, 0):
                 from urllib2 import urlopen
@@ -233,7 +233,7 @@ class AccountGetAnother(APIView):
             import io
             from colorthief import ColorThief
 
-            fd = urlopen('https://training-django.onrender.com' + account.get_image())
+            fd = urlopen('https://training-django.onrender.com' + obj.get_image())
             f = io.BytesIO(fd.read())
             color_thief = ColorThief(f)
             dominant_color = color_thief.get_color(quality=1)
