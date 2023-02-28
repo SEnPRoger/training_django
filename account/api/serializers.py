@@ -69,7 +69,7 @@ class AccountDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['username', 'email', 'photo', 'image_color', 'is_moderator', 'created_at', 'changed_username']
+        fields = ['username', 'email', 'photo', 'is_moderator', 'created_at', 'changed_username']
 
 class AccountChangePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=88, style={'input_type':'password'}, write_only=True)

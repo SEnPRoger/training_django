@@ -211,7 +211,7 @@ class AccountGetAnother(APIView):
                              'account':{
                                     'username': account.username,
                                     'photo': account.get_image(),
-                                    'photo_color': self.get_image_color(account),
+                                    #'photo_color': self.get_image_color(account),
                                     'is_moderator': account.is_moderator,
                                     'created_at': self.get_normal_created_at_datetime(account)
                                 }
