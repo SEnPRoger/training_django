@@ -98,10 +98,10 @@
 >  ```
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
->  ```json
->  {
->      "status": "account not found!"
->  }
+> ```json
+> {
+>     "status": "account not found!"
+> }
 >  ```
 
 ### 📢 ВАЖЛИВО: Refresh-token буде записаний до cookies зi значенням `refresh_cookie`, а Access-token у виглядi вiдповiдi для подальшого використання запитiв, що потребують авторизованого пiдключення.
@@ -118,7 +118,7 @@
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
 > ```json
->  {
+> {
 >    "status": "successfully got account",
 >    "account": {
 >        "username": "SEnPRoger",
@@ -126,8 +126,8 @@
 >        "is_moderator": true,
 >        "created_at": "26 February 2023 17:41"
 >    }
->  }
->  ```
+> }
+> ```
 
 [До початку документації👆](#main)
 
@@ -149,18 +149,18 @@
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
 > ```json
->  {
+> {
 >     "status":  "success",
 >     "account":  {
->     	"username":  "SEnPRoger",
->     	"email":  "senproger@gmail.com",
->     	"photo":  "/media/accounts/2/SEnPRoger.jpg", //or null
-> 	"is_moderator":  false,
->     	"created_at":  "26 February 2023 17:41", //2023-02-18T07:42:32.695287+02:00 (raw version as option)
->     	"changed_username":  "26 February 2023 17:41"
+>     "username":  "SEnPRoger",
+>     "email":  "senproger@gmail.com",
+>     "photo":  "/media/accounts/2/SEnPRoger.jpg", //or null
+> 	   "is_moderator":  false,
+>     "created_at":  "26 February 2023 17:41", //2023-02-18T07:42:32.695287+02:00 (raw version as option)
+>     "changed_username":  "26 February 2023 17:41"
 >     }
->   }
->  ```
+>  }
+> ```
 
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
  
@@ -201,19 +201,19 @@
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
 
->    ```json
->    {
->     	"status": "username change available once at day"
->    }
->    ``` 
+> ```json
+> {
+>     "status": "username change available once at day"
+> }
+> ``` 
 ❌ або якщо користувач з таким username вже є у системi:
->    ```json
->    {
->     	"username":  [
->     		"account with this Username already exists."
->     	]
->    }
->    ``` 
+> ```json
+> {
+>     "username":  [
+>     	"account with this Username already exists."
+>     ]
+> }
+> ``` 
 
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
 
@@ -255,7 +255,7 @@
 > ```json
 > {
 >     "non_field_errors":  [
->     		"Both passwords should be equal"
+>     	"Both passwords should be equal"
 >     ]
 > }
 >    ```
@@ -281,29 +281,29 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->    {
->     	"file": "SEnPRoger.jpg"
->    }
->    ```
+> ```json
+> {
+>     "file": "SEnPRoger.jpg"
+> }
+> ```
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
 
->    ```json
->    {
->     	"status": "successfully uploaded photo"
->    }
->    ```
+> ```json
+> {
+>     "status": "successfully uploaded photo"
+> }
+> ```
 
 **📢 ВАЖЛИВО: користувачi, що не мають статус Moredator, не можуть завантажувати у якостi фотографії профiлю файли з розширенням (.gif).
 Загалом дозволенi такi формати файлiв: .jpg, .png та .gif для модераторiв.**
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
->    ```json
->    {
->     	"status": "you cannot upload gif as account photo"
->    }
->    ```
+> ```json
+> {
+>     "status": "you cannot upload gif as account photo"
+> }
+> ```
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
 
 [До початку документації👆](#main)
@@ -317,35 +317,35 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->    {
->     	"username": "SEnPRoger2"
->    }
->    ```
+> ```json
+> {
+>     "username": "SEnPRoger2"
+> }
+> ```
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
->    ```json
->    {
->     	"status": "username available"
->    }
->    ```
+> ```json
+> {
+>     "status": "username available"
+> }
+> ```
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
->    ```json
->    {
->     	"username":  [
->     		"account with this Username already exists."
->     	]
->    }
->    ```
+> ```json
+> {
+>     "username":  [
+>     	"account with this Username already exists."
+>     ]
+> }
+> ```
 
 ❌ або якщо username не бiльше за 3 символи:
 
->    ```json
->    {
->     	"status": "username should be have more then 3 characters"
->    }
->    ```
+> ```json
+> {
+>     "status": "username should be have more then 3 characters"
+> }
+> ```
 
 [До початку документації👆](#main)
 
@@ -358,27 +358,27 @@
 
 💬*Приклад запиту до сервера: (JSON)*
 
->    ```json
->    {
->     	"email": "senproger2@gmail.com"
->    }
->    ```
+> ```json
+> {
+>     "email": "senproger2@gmail.com"
+> }
+> ```
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
->    ```json
->    {
->     	"status": "email available"
->    }
->    ```
+> ```json
+> {
+>     "status": "email available"
+> }
+> ```
 
 ❌*Приклад вiдповiдi вiд сервера у випадку невдачi : (JSON)*
->    ```json
->    {
->     	"username":  [
->     		"account with this Email already exists."
->     	]
->    }
->    ```
+> ```json
+> {
+>     "username":  [
+>        "account with this Email already exists."
+>     ]
+> }
+> ```
 [До початку документації👆](#main)
 
 <div id="logout_account"></div>
@@ -396,11 +396,11 @@
 > значення у виглядi Access-token
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
->    ```json
->    {
->     	"status": "successfully logout from account!"
->    }
->    ```
+> ```json
+> {
+>     "status": "successfully logout from account!"
+> }
+> ```
 
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
 
@@ -422,11 +422,11 @@
 > значення у виглядi Access-token
 
 ✔️*Приклад вiдповiдi вiд сервера: (JSON)*
->    ```json
->    {
->     	"status": "successfully deleted account"
->    }
->    ```
+> ```json
+> {
+>     "status": "successfully deleted account"
+> }
+> ```
 
 ❌[Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token**](#invalid_token)
 
@@ -445,28 +445,28 @@
 ❌*Приклад вiдповiдi вiд сервера у випадку невалiдного **Access-token** : (JSON)*
 
 *Якщо Refresh-token дiйсний:*
->    ```json
->    {
->     	"status": "Access token is not valid",
->     	"detail": "Token has expired or incorrect",
->     	"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
->    }
->    ```
+> ```json
+> {
+>     "status": "Access token is not valid",
+>     "detail": "Token has expired or incorrect",
+>     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+> }
+> ```
 
 *Якщо Refresh-token НЕ дiйсний:*
->    ```json
->    {
->     	"status": "Refresh token is not valid",
->     	"detail": "Token has expired or incorrect"
->    }
->    ```
+> ```json
+> {
+>     "status": "Refresh token is not valid",
+>     "detail": "Token has expired or incorrect"
+> }
+> ```
 
 *Або:*
->    ```json
->    {
->     	"detail": "Authentication credentials were not provided."
->    }
->    ```
+> ```json
+> {
+>     "detail": "Authentication credentials were not provided."
+> }
+> ```
 
 [До початку документації👆](#main)
 
