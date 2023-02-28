@@ -205,19 +205,20 @@ class AccountCheckEmailAvailable(APIView):
     
 class AccountGetAnother(APIView):
     def get(self, request, username=None, format=None):
-        account = Account.objects.get(username=username)
-        if account is not None:
-            return Response({'status':'successfully got account',
-                             'account':{
-                                    'username': account.username,
-                                    'photo': account.get_image(),
-                                    'is_moderator': account.is_moderator,
-                                    'created_at': self.get_normal_created_at_datetime(account)
-                                }
-                             },status=status.HTTP_200_OK)
-        else:
+        try:
+            account = Account.objects.get(username=username)
+            if account is not None:
+                return Response({'status':'successfully got account',
+                                'account':{
+                                        'username': account.username,
+                                        'photo': account.get_image(),
+                                        'is_moderator': account.is_moderator,
+                                        'created_at': self.get_normal_created_at_datetime(account)
+                                    }
+                                },status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
             return Response({'status':'account not found!'},
-                                    status=status.HTTP_404_NOT_FOUND)
+                                        status=status.HTTP_404_NOT_FOUND)
     
     def get_normal_created_at_datetime(self, obj):
         return timezone.localtime(obj.created_at).strftime('%d %B %Y %H:%M')
