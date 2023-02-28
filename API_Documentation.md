@@ -426,6 +426,7 @@
 >        "photo": "/media/accounts/2/SEnPRoger_nX76Jvt.gif",
 >        "is_moderator": true,
 >        "created_at": "26 February 2023 17:41"
+>    }
 >  }
 >  ```
 
