@@ -20,6 +20,8 @@ urlpatterns = [
     path('available_username/', AccountCheckUsernameAvailable.as_view(), name='available_username'),
     path('available_email/', AccountCheckEmailAvailable.as_view(), name='available_email'),
 
+    path('<str:username>/', AccountGetAnother.as_view(), name='get_account'),
+
     # path('reset_password_send_email/', AccountSendEmailResetPassword.as_view(), name='reset_password_send_email'),
     # path('reset_password/<uid>/<token>', AccountResetPassword.as_view(), name='reset_password_email'),
 ]
