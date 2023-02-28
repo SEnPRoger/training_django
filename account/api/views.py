@@ -211,6 +211,7 @@ class AccountGetAnother(APIView):
                              'account':{
                                     'username': account.username,
                                     'photo': account.get_image(),
+                                    'photo_color': self.get_image_color(account),
                                     'is_moderator': account.is_moderator,
                                     'created_at': self.get_normal_created_at_datetime(account)
                                 }
@@ -219,8 +220,26 @@ class AccountGetAnother(APIView):
             return Response({'status':'account not found!'},
                                     status=status.HTTP_404_NOT_FOUND)
     
-    def get_normal_created_at_datetime(self, obj):
-        return timezone.localtime(obj.created_at).strftime('%d %B %Y %H:%M')
+    def get_normal_created_at_datetime(self, account):
+        return timezone.localtime(account.created_at).strftime('%d %B %Y %H:%M')
+    
+    def get_image_color(self, account):
+        if account.get_image() is not None:
+            import sys
+            if sys.version_info < (3, 0):
+                from urllib2 import urlopen
+            else:
+                from urllib.request import urlopen
+            import io
+            from colorthief import ColorThief
+
+            fd = urlopen('https://training-django.onrender.com' + account.get_image())
+            f = io.BytesIO(fd.read())
+            color_thief = ColorThief(f)
+            dominant_color = color_thief.get_color(quality=1)
+            return dominant_color
+        else:
+            return None
 
 # class AccountSendEmailResetPassword(APIView):
 #     def post(self, request, format=None):

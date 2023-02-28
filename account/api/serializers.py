@@ -38,6 +38,7 @@ class AccountDetailSerializer(serializers.ModelSerializer):
     photo = serializers.SerializerMethodField('get_account_photo')
     created_at = serializers.SerializerMethodField('get_normal_created_at_datetime')
     changed_username = serializers.SerializerMethodField('get_normal_changed_username_datetime')
+    image_color = serializers.SerializerMethodField('get_image_color')
 
     def get_account_photo(self, obj):
         return obj.get_image()
@@ -47,10 +48,28 @@ class AccountDetailSerializer(serializers.ModelSerializer):
     
     def get_normal_changed_username_datetime(self, obj):
         return timezone.localtime(obj.changed_username).strftime('%d %B %Y %H:%M')
+    
+    def get_image_color(self, obj):
+        if obj.get_image() is not None:
+            import sys
+            if sys.version_info < (3, 0):
+                from urllib2 import urlopen
+            else:
+                from urllib.request import urlopen
+            import io
+            from colorthief import ColorThief
+
+            fd = urlopen('https://training-django.onrender.com' + obj.get_image())
+            f = io.BytesIO(fd.read())
+            color_thief = ColorThief(f)
+            dominant_color = color_thief.get_color(quality=1)
+            return dominant_color
+        else:
+            return None
 
     class Meta:
         model = Account
-        fields = ['username', 'email', 'photo', 'is_moderator', 'created_at', 'changed_username']
+        fields = ['username', 'email', 'photo', 'image_color', 'is_moderator', 'created_at', 'changed_username']
 
 class AccountChangePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=88, style={'input_type':'password'}, write_only=True)
