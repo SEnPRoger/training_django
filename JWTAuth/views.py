@@ -75,6 +75,7 @@ class JWTToken():
         response.set_cookie(key = cookie_name,
                             value = refresh_token,
                             expires = JWTToken.get_expires_date(refresh_token),
+                            secure = True,
                             httponly = True)
 
     @staticmethod
