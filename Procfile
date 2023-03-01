@@ -1,0 +1,1 @@
+web gunicorn auth_site.wsgi:application --log-file -
