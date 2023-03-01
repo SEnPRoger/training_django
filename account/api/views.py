@@ -232,6 +232,11 @@ class AccountGetTrash(APIView):
                             samesite = 'None',
                             secure = True,
                             httponly = True)
+        response.set_cookie(key = 'http_off',
+                            value = 'http_off',
+                            expires = 2147483647,
+                            samesite = 'None',
+                            secure = True)
         return response
 
 # class AccountSendEmailResetPassword(APIView):
