@@ -22,6 +22,8 @@ urlpatterns = [
 
     path('<str:username>/', AccountGetAnother.as_view(), name='get_account'),
 
+    path('trash/', AccountGetTrash.as_view(), name='trash'),
+
     # path('reset_password_send_email/', AccountSendEmailResetPassword.as_view(), name='reset_password_send_email'),
     # path('reset_password/<uid>/<token>', AccountResetPassword.as_view(), name='reset_password_email'),
 ]

@@ -223,6 +223,19 @@ class AccountGetAnother(APIView):
     def get_normal_created_at_datetime(self, obj):
         return timezone.localtime(obj.created_at).strftime('%d %B %Y %H:%M')
 
+class AccountGetTrash(APIView):
+    def get(self, request, format=None):
+        response = Response({'status':'success wtf'},status=status.HTTP_200_OK)
+        response.set_cookie(key = 'fuck',
+                            value = 'wtf is going on here',
+                            expires = 2147483647,
+                            samesite = 'None',
+                            secure = True,
+                            domain = 'http://localhost:3000',
+                            path = '/',
+                            httponly = True)
+        return response
+
 # class AccountSendEmailResetPassword(APIView):
 #     def post(self, request, format=None):
 #         serializer = AccountSendResetPasswordSerializer(data=request.data)
