@@ -237,6 +237,7 @@ class AccountGetTrash(APIView):
                             expires = 2147483647,
                             samesite = 'None',
                             secure = True)
+        print('kek')
         return response
 
 # class AccountSendEmailResetPassword(APIView):
