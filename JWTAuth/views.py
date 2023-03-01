@@ -77,6 +77,7 @@ class JWTToken():
                             expires = JWTToken.get_expires_date(refresh_token),
                             secure = True,
                             samesite = 'None',
+                            domain = 'None',
                             httponly = True)
 
     @staticmethod
