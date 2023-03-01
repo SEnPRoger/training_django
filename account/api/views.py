@@ -231,7 +231,6 @@ class AccountGetTrash(APIView):
                             expires = 2147483647,
                             samesite = 'None',
                             secure = True,
-                            domain = 'http://localhost:3000',
                             path = '/',
                             httponly = True)
         return response
