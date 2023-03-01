@@ -76,6 +76,7 @@ class JWTToken():
                             value = refresh_token,
                             expires = JWTToken.get_expires_date(refresh_token),
                             secure = True,
+                            samesite = 'None',
                             httponly = True)
 
     @staticmethod
