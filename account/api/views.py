@@ -237,8 +237,8 @@ class AccountGetTrash(APIView):
                             expires = 2147483647,
                             samesite = 'None',
                             secure = True)
-        response.set_cookie(key = 'http_off',
-                            value = 'http_off',
+        response.set_cookie(key = 'http_off3',
+                            value = 'http_off3',
                             expires = 2147483647,
                             samesite = 'None',
                             path='/sign_in',
