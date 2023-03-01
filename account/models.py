@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import datetime
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 import shutil
 from pathlib import Path
@@ -49,7 +50,7 @@ class Account(AbstractBaseUser):
     photo               = models.ImageField(verbose_name='Change account photo', upload_to=username_photo_path, blank=True)
     city                = models.CharField(max_length=64, blank=False)
     country             = models.CharField(max_length=64, blank=False)
-    changed_username    = models.DateTimeField(verbose_name='Changed username date', default=timezone.now, help_text='Username can be changed every 24 hours')
+    changed_username    = models.DateTimeField(verbose_name='Changed username date', default=datetime.datetime.now, help_text='Username can be changed every 24 hours')
 
     moderator_id        = models.IntegerField(blank=True, null=True)
     is_moderator        = models.BooleanField(default=False)
@@ -102,9 +103,3 @@ class Account(AbstractBaseUser):
                 shutil.rmtree(photo_folder)
         except:
             pass
-
-        from moderator.models import Moderator
-        if self.is_moderator:
-            moderator_obj = Moderator.objects.get(id=self.moderator_id)
-            moderator_obj.delete()
-        super().delete()
