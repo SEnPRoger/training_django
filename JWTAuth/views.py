@@ -77,7 +77,7 @@ class JWTToken():
                             expires = JWTToken.get_expires_date(refresh_token),
                             samesite = 'None',
                             secure = True,
-                            path = '/',
+                            path = 'http://localhost:3000',
                             httponly = True)
 
     @staticmethod
