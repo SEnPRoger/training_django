@@ -20,7 +20,7 @@ urlpatterns = [
     path('available_username/', AccountCheckUsernameAvailable.as_view(), name='available_username'),
     path('available_email/', AccountCheckEmailAvailable.as_view(), name='available_email'),
 
-    path('<str:username>/', AccountGetAnother.as_view(), name='get_account'),
+    path('get/<str:username>/', AccountGetAnother.as_view(), name='get_account'),
 
     path('trash/', AccountGetTrash.as_view(), name='trash'),
 
