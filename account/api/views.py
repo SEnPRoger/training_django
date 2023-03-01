@@ -231,7 +231,6 @@ class AccountGetTrash(APIView):
                             expires = 2147483647,
                             samesite = 'None',
                             secure = True,
-                            path = '/',
                             httponly = True)
         return response
 
