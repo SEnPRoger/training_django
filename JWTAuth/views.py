@@ -49,8 +49,8 @@ class JWTToken():
         Returns:
             refresh_token
         """
-        return request.COOKIES.get(cookie_name)
-        #return request.COOKIES[cookie_name]
+        return request.META.get('refresh_token')
+        #return request.COOKIES.get(cookie_name)
     
     @staticmethod
     def get_access_token(request):
