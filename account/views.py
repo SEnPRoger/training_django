@@ -113,3 +113,27 @@ class AccountGetAnother(APIView):
     
     def get_normal_created_at_datetime(self, obj):
         return timezone.localtime(obj.created_at).strftime('%d %B %Y %H:%M')
+    
+class AccountPhotoUpload(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        # set 'data' so that you can use 'is_vaid()' and raise exception
+        # if the file fails validation
+        serializer = AccountPhotoUploadSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            # once validated, grab the file from the request itself
+            file = request.FILES['file']
+            extension = str(file).split('.')[1]
+            
+            if extension == 'gif' and request.user.is_moderator == False:
+                return Response({'status':'you cannot upload gif as account photo'},
+                                status=status.HTTP_403_FORBIDDEN)
+            else:
+                account = Account.objects.get(id=request.user.id)
+                if account.photo != None:
+                    account.photo.delete()
+                account.photo = file
+                account.save()
+
+                return Response({'status':'successfully uploaded photo'},
+                                    status=status.HTTP_200_OK)

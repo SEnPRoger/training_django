@@ -51,3 +51,6 @@ class AccountDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['username', 'email', 'photo', 'created_at', 'is_moderator', 'changed_username']
+
+class AccountPhotoUploadSerializer(serializers.Serializer):
+    file = serializers.ImageField()
