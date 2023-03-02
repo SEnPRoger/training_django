@@ -21,7 +21,6 @@ urlpatterns = [
     path('available_email/', AccountCheckEmailAvailable.as_view(), name='available_email'),
 
     path('get/<str:username>/', AccountGetAnother.as_view(), name='get_account'),
-
     path('trash/', AccountGetTrash.as_view(), name='trash'),
 
     # path('reset_password_send_email/', AccountSendEmailResetPassword.as_view(), name='reset_password_send_email'),
