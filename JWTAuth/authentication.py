@@ -8,8 +8,8 @@ from django.conf import settings
 import jwt
 
 settings = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=3),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=3),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 
     'USER_ID_CLAIM':'user_id',
     'USER_ID_FIELD': 'id',
@@ -28,7 +28,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         if header is None:
             return None
 
-        raw_refresh_token = JWTToken.get_refresh_token(request, cookie_name='refresh_cookie')
+        raw_refresh_token = JWTToken.get_refresh_token(request, header_name='REFRESH-TOKEN')
         raw_access_token = JWTToken.get_access_token(request)
 
         if raw_access_token is None or raw_refresh_token is None:
