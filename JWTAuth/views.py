@@ -39,7 +39,7 @@ class JWTToken():
         return JWTToken.GenerateToken(user_id, 'refresh', settings.get('REFRESH_TOKEN_LIFETIME')), JWTToken.GenerateToken(user_id, 'access', settings.get('ACCESS_TOKEN_LIFETIME'))
     
     @staticmethod
-    def get_refresh_token(request, cookie_name):
+    def get_refresh_token(request, header_name):
         """
         Getting refresh token from cookies (JWT encoding)
 
@@ -49,7 +49,8 @@ class JWTToken():
         Returns:
             refresh_token
         """
-        return request.COOKIES.get(cookie_name)
+        return request[header_name]
+        #return request.COOKIES.get(cookie_name)
     
     @staticmethod
     def get_access_token(request):
@@ -65,20 +66,22 @@ class JWTToken():
         return request.META.get('HTTP_AUTHORIZATION').split(' ')[1]
 
     @staticmethod
-    def set_refresh_to_cookie(response, refresh_token, cookie_name):
+    def set_refresh_to_header(response, refresh_token, header_name):
         """
         Setting refresh token to cookies with httponly=True
 
         Arguments:
             response, refresh_token, cookie_name (like 'refresh_cookie')
         """
-        response.set_cookie(key = cookie_name,
-                            value = refresh_token,
-                            expires = JWTToken.get_expires_date(refresh_token),
-                            secure = True,
-                            samesite = 'None',
-                            domain = 'localhost:3000',
-                            httponly = True)
+        # response.set_cookie(key = cookie_name,
+        #                     value = refresh_token,
+        #                     expires = JWTToken.get_expires_date(refresh_token),
+        #                     secure = True,
+        #                     samesite = 'None',
+        #                     domain = 'localhost:3000',
+        #                     httponly = True)
+        
+        response[header_name] = refresh_token
 
     @staticmethod
     def validate(token):

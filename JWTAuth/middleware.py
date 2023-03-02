@@ -20,13 +20,13 @@ class UserCookieMiddleWare(MiddlewareMixin):
         from rest_framework.renderers import JSONRenderer
         from JWTAuth.views import JWTToken
         
-        if request.COOKIES.get('refresh_cookie'):
+        if request['REFRESH_TOKEN'] != None:
             try:
-                raw_refresh_token = JWTToken.get_refresh_token(request, cookie_name='refresh_cookie')
+                raw_refresh_token = JWTToken.get_refresh_token(request, header_name='REFRESH_TOKEN')
                 raw_access_token = JWTToken.get_access_token(request)
 
-                print(JWTToken.validate(raw_refresh_token))
-                print(JWTToken.validate(raw_access_token))
+                #print(JWTToken.validate(raw_refresh_token))
+                #print(JWTToken.validate(raw_access_token))
                 
                 if JWTToken.validate(raw_access_token) != True:
                     if JWTToken.validate(raw_refresh_token):
