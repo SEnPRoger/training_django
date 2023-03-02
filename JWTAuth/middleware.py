@@ -22,11 +22,8 @@ class UserCookieMiddleWare(MiddlewareMixin):
         
         if request.META.get('refresh_token') != None:
             try:
-                raw_refresh_token = JWTToken.get_refresh_token(request, header_name='refresh_token')
+                raw_refresh_token = JWTToken.get_refresh_token(request, cookie_name='refresh_token')
                 raw_access_token = JWTToken.get_access_token(request)
-
-                #print(JWTToken.validate(raw_refresh_token))
-                #print(JWTToken.validate(raw_access_token))
                 
                 if JWTToken.validate(raw_access_token) != True:
                     if JWTToken.validate(raw_refresh_token):
@@ -41,7 +38,7 @@ class UserCookieMiddleWare(MiddlewareMixin):
                         response.accepted_media_type = "application/json"
                         response.renderer_context = {}
 
-                        JWTToken.set_refresh_to_header(response, refresh_token, header_name='refresh_cookie')
+                        JWTToken.set_refresh_to_header(response, refresh_token, header_name='refresh_token')
                         
                         response['X-CSRFToken'] = request.COOKIES.get('X-CSRFToken')
                         return response
@@ -55,7 +52,7 @@ class UserCookieMiddleWare(MiddlewareMixin):
                         response.accepted_media_type = "application/json"
                         response.renderer_context = {}
 
-                        #response.delete_cookie("refresh_cookie")
+                        response.delete_cookie("refresh_token")
                         response.delete_cookie('X-CSRFToken')
                         return response
             except AttributeError:

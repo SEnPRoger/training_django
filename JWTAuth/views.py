@@ -39,7 +39,7 @@ class JWTToken():
         return JWTToken.GenerateToken(user_id, 'refresh', settings.get('REFRESH_TOKEN_LIFETIME')), JWTToken.GenerateToken(user_id, 'access', settings.get('ACCESS_TOKEN_LIFETIME'))
     
     @staticmethod
-    def get_refresh_token(request, header_name):
+    def get_refresh_token(request, cookie_name):
         """
         Getting refresh token from cookies (JWT encoding)
 
@@ -49,9 +49,7 @@ class JWTToken():
         Returns:
             refresh_token
         """
-        #return request[header_name]
-        return request.META.get(header_name)
-        #return request.COOKIES.get(cookie_name)
+        return request.COOKIES.get(cookie_name)
     
     @staticmethod
     def get_access_token(request):
