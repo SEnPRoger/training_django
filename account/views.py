@@ -74,13 +74,24 @@ class AccountLogin(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 class AccountProfile(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
-        serializer = AccountDetailSerializer(request.user)
-        response = Response({'account':serializer.data},
-                            status=status.HTTP_200_OK)
+
+        raw_refresh_token = JWTToken.get_refresh_token(request, cookie_name='refresh_token')
+        raw_access_token = JWTToken.get_access_token(request)
         
-        response['X-CSRFToken'] = csrf.get_token(request)
+        response = Response(
+                data={'status':'success',
+                        'refresh': raw_refresh_token,
+                        'access': raw_access_token},
+                        status=status.HTTP_200_OK
+                )
+
+        # serializer = AccountDetailSerializer(request.user)
+        # response = Response({'account':serializer.data},
+        #                     status=status.HTTP_200_OK)
+        
+        # response['X-CSRFToken'] = csrf.get_token(request)
         return response
     
 class AccountGetAnother(APIView):
