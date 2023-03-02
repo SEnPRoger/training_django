@@ -62,7 +62,7 @@ class AccountLogin(APIView):
                 response = Response({'status':'successfully logged',
                                     'access_token':access_token},
                                     status=status.HTTP_200_OK)
-                JWTToken.set_refresh_to_header(response, refresh_token, header_name='refresh_token')
+                JWTToken.set_refresh_to_header(response, refresh_token, header_name='REFRESH-TOKEN')
                 response['X-CSRFToken'] = csrf.get_token(request)
                 return response
             else:
