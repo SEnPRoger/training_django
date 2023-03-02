@@ -22,8 +22,7 @@ class UserCookieMiddleWare(MiddlewareMixin):
         
         if request['REFRESH_TOKEN'] != None:
             try:
-                #raw_refresh_token = JWTToken.get_refresh_token(request, header_name='REFRESH_TOKEN')
-                raw_refresh_token = request['REFRESH_TOKEN']
+                raw_refresh_token = JWTToken.get_refresh_token(request, header_name='REFRESH_TOKEN')
                 raw_access_token = JWTToken.get_access_token(request)
 
                 #print(JWTToken.validate(raw_refresh_token))
