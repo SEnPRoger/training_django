@@ -167,7 +167,7 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    "refresh_token",
+    "REFRESH-TOKEN",
 ]
 
 CORS_EXPOSE_HEADERS = [
@@ -180,7 +180,7 @@ CORS_EXPOSE_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    "refresh_token",
+    "REFRESH-TOKEN",
 ]
 
 CORS_ALLOWED_ORIGINS = [
