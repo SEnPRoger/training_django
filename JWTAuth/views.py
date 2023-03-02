@@ -49,7 +49,7 @@ class JWTToken():
         Returns:
             refresh_token
         """
-        return request.META.get('refresh_token')
+        return request.META.get(cookie_name)
         #return request.COOKIES.get(cookie_name)
     
     @staticmethod
