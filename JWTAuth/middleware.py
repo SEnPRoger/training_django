@@ -35,40 +35,40 @@ class UserCookieMiddleWare(MiddlewareMixin):
 
         # return response
 
-        # if request.COOKIES.get('refresh_token'):
-        #     try:
-        #         raw_refresh_token = JWTToken.get_refresh_token(request, cookie_name='refresh_token')
-        #         raw_access_token = JWTToken.get_access_token(request)
+        if request.META.get('refresh_token'):
+            try:
+                raw_refresh_token = JWTToken.get_refresh_token(request, header_name='refresh_token')
+                raw_access_token = JWTToken.get_access_token(request)
                 
-        #         if JWTToken.validate(raw_access_token) != True:
-        #             if JWTToken.validate(raw_refresh_token):
-        #                 refresh_token, access_token = JWTToken.generate_tokens(JWTToken.get_userid(raw_refresh_token))
-        #                 response = Response(
-        #                     data={'status':'Access token is not valid',
-        #                           'detail':'Token has expired or incorrect',
-        #                           'access_token':access_token},
-        #                           status=status.HTTP_401_UNAUTHORIZED
-        #                 )
-        #                 response.accepted_renderer = JSONRenderer()
-        #                 response.accepted_media_type = "application/json"
-        #                 response.renderer_context = {}
+                if JWTToken.validate(raw_access_token) != True:
+                    if JWTToken.validate(raw_refresh_token):
+                        refresh_token, access_token = JWTToken.generate_tokens(JWTToken.get_userid(raw_refresh_token))
+                        response = Response(
+                            data={'status':'Access token is not valid',
+                                  'detail':'Token has expired or incorrect',
+                                  'access_token':access_token},
+                                  status=status.HTTP_401_UNAUTHORIZED
+                        )
+                        response.accepted_renderer = JSONRenderer()
+                        response.accepted_media_type = "application/json"
+                        response.renderer_context = {}
 
-        #                 JWTToken.set_refresh_to_header(response, refresh_token, header_name='refresh_token')
+                        JWTToken.set_refresh_to_header(response, refresh_token, header_name='refresh_token')
                         
-        #                 response['X-CSRFToken'] = request.COOKIES.get('X-CSRFToken')
-        #                 return response
-        #             else:
-        #                 response = Response(
-        #                     data={'status':'Refresh token is not valid',
-        #                           'detail':'Token has expired or incorrect'},
-        #                           status=status.HTTP_401_UNAUTHORIZED
-        #                 )
-        #                 response.accepted_renderer = JSONRenderer()
-        #                 response.accepted_media_type = "application/json"
-        #                 response.renderer_context = {}
+                        response['X-CSRFToken'] = request.COOKIES.get('X-CSRFToken')
+                        return response
+                    else:
+                        response = Response(
+                            data={'status':'Refresh token is not valid',
+                                  'detail':'Token has expired or incorrect'},
+                                  status=status.HTTP_401_UNAUTHORIZED
+                        )
+                        response.accepted_renderer = JSONRenderer()
+                        response.accepted_media_type = "application/json"
+                        response.renderer_context = {}
 
-        #                 response.delete_cookie("refresh_token")
-        #                 response.delete_cookie('X-CSRFToken')
-        #                 return response
-        #     except AttributeError:
-        #         pass
+                        response.delete_cookie("refresh_token")
+                        response.delete_cookie('X-CSRFToken')
+                        return response
+            except AttributeError:
+                pass
