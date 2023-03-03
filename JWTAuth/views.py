@@ -49,6 +49,7 @@ class JWTToken():
         Returns:
             refresh_token
         """
+        #return request.META.get(header_name)
         #return request.COOKIES.get(cookie_name)
         return request.headers[header_name]
     
@@ -76,12 +77,11 @@ class JWTToken():
         # response.set_cookie(key = cookie_name,
         #                     value = refresh_token,
         #                     expires = JWTToken.get_expires_date(refresh_token),
-        #                     samesite = 'None',
         #                     secure = True,
-        #                     domain = 'http://localhost:3000',
-        #                     path = '/',
+        #                     samesite = 'None',
+        #                     domain = 'localhost:3000',
         #                     httponly = True)
-
+        
         response[header_name] = refresh_token
 
     @staticmethod
